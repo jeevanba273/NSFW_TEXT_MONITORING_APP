@@ -25,6 +25,7 @@ google-search
 googlesearch-python
 deep-translator
 grpcio
+gunicorn
 h11
 h2
 h5py
