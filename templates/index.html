@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>NSFW Text Monitoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="chat">
+    <div id="messages">
+        {% with messages = get_flashed_messages() %}
+        <p style="font-size: 30px;">ToxiGuard
+            {% if messages %}
+                {% for message in messages %}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span style="color:red; font-size: 15px;">{{ message }}</span>
+                {% endfor %}
+            {% endif %}
+        </p>
+        {% endwith %}
+    </div>
+
+    <!-- FORM for User Input -->
+    <form id="chat-form">
+        <input type="text" name="text" id="text-input" size="92" autocomplete="off" placeholder="Type your message here...">
+        <br><br>
+        <input type="submit" value="Send">
+    </form>
+
+    <!-- Output Display -->
+    <div id="output"></div>
+</div>
+
+<!-- JavaScript to Handle Form Submission -->
+<script>
+    $(document).ready(function () {
+        $('#chat-form').submit(function (e) {
+            e.preventDefault(); // Prevent default form submission
+            var inputText = $('#text-input').val();
+
+            if (!inputText.trim()) {
+                $('#output').html('<span style="color:red;">Please enter some text.</span>');
+                return;
+            }
+
+            var formData = JSON.stringify({ text: inputText });
+
+            $.ajax({
+                type: 'POST',
+                url: '/check_hate',  // ✅ Sending request to /check_hate (not /)
+                data: formData,
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.result) {
+                        $('#output').html('<span style="color:green;">No hate speech detected.</span>');
+                    } else {
+                        $('#output').html('<span style="color:red;">Hate speech detected!</span>');
+                    }
+                },
+                error: function () {
+                    $('#output').html('<span style="color:red;">Error processing request.</span>');
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
